@@ -1,17 +1,17 @@
 package com.example.andres.androidmvvm
 
 import android.app.Activity
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.RecyclerView.ViewHolder
-import android.support.v7.widget.helper.ItemTouchHelper
-import android.support.v7.widget.helper.ItemTouchHelper.SimpleCallback
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -34,10 +34,10 @@ class MainActivity : AppCompatActivity() {
       startActivityForResult(intent, ADD_NOTE_REQUEST)
 
     }
-    val recyclerView: RecyclerView =
+    val recyclerView: androidx.recyclerview.widget.RecyclerView =
       findViewById(R.id.recycler_view)
 
-    recyclerView.layoutManager = LinearLayoutManager(this)
+    recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
     recyclerView.setHasFixedSize(true)
 
     var adapter = NoteAdapter()
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
     ) {
       override fun onMove(
-        p0: RecyclerView,
+        p0: androidx.recyclerview.widget.RecyclerView,
         p1: ViewHolder,
         p2: ViewHolder
       ): Boolean {
