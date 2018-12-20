@@ -15,10 +15,12 @@ import android.support.v7.widget.helper.ItemTouchHelper.SimpleCallback
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.example.andres.androidmvvm.AddEditNoteActivity.Companion.EXTRA_ID
 
 class MainActivity : AppCompatActivity() {
   private
   val ADD_NOTE_REQUEST = 1
+  val EDIT_NOTE_REQUEST = 2
 
   var noteViewModel: NoteViewModel? = null
 
@@ -28,12 +30,12 @@ class MainActivity : AppCompatActivity() {
 
     var mAddNoteBtn: FloatingActionButton = findViewById(R.id.add_note_btn)
     mAddNoteBtn.setOnClickListener {
-      var intent = Intent(this@MainActivity, AddNoteActivity::class.java)
+      var intent = Intent(this@MainActivity, AddEditNoteActivity::class.java)
       startActivityForResult(intent, ADD_NOTE_REQUEST)
 
     }
     val recyclerView: RecyclerView =
-      findViewById(com.example.andres.androidmvvm.R.id.recycler_view)
+      findViewById(R.id.recycler_view)
 
     recyclerView.layoutManager = LinearLayoutManager(this)
     recyclerView.setHasFixedSize(true)
@@ -44,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     noteViewModel = ViewModelProviders.of(this)
         .get(NoteViewModel::class.java)
     noteViewModel!!.allNotes.observe(this, Observer {
-      adapter.setNotes(it)
+      adapter.submitList(it)
     })
 
     ItemTouchHelper(object : SimpleCallback(
@@ -68,6 +70,16 @@ class MainActivity : AppCompatActivity() {
             .show()
       }
     }).attachToRecyclerView(recyclerView)
+    adapter.setOnItemClickListener {
+      val intent = Intent(this@MainActivity, AddEditNoteActivity::class.java)
+      intent.putExtra(AddEditNoteActivity.EXTRA_ID, it.id)
+
+      intent.putExtra(AddEditNoteActivity.EXTRA_TITLE, it.title)
+      intent.putExtra(AddEditNoteActivity.EXTRA_DESCRIPTION, it.description)
+      intent.putExtra(AddEditNoteActivity.EXTRA_PRIORITY, it.priority)
+
+      startActivityForResult(intent, EDIT_NOTE_REQUEST)
+    }
   }
 
   override fun onActivityResult(
@@ -78,14 +90,30 @@ class MainActivity : AppCompatActivity() {
     super.onActivityResult(requestCode, resultCode, data)
 
     if (requestCode == ADD_NOTE_REQUEST && resultCode == Activity.RESULT_OK) {
-      var title = data!!.getStringExtra(AddNoteActivity.EXTRA_TITLE)
-      var description = data!!.getStringExtra(AddNoteActivity.EXTRA_DESCRIPTION)
-      var priority = data!!.getIntExtra(AddNoteActivity.EXTRA_PRIORITY, 1)
+      var title = data!!.getStringExtra(AddEditNoteActivity.EXTRA_TITLE)
+      var description = data!!.getStringExtra(AddEditNoteActivity.EXTRA_DESCRIPTION)
+      var priority = data!!.getIntExtra(AddEditNoteActivity.EXTRA_PRIORITY, 1)
 
       var note = Note(title, description, priority)
       noteViewModel!!.insert(note)
 
       Toast.makeText(this, "Note Saved", Toast.LENGTH_SHORT)
+          .show()
+    } else if (requestCode == EDIT_NOTE_REQUEST && resultCode == Activity.RESULT_OK) {
+      var id = data!!.getIntExtra(EXTRA_ID, -1)
+      if (id == -1) {
+        Toast.makeText(this, "Note couldn't be updated", Toast.LENGTH_SHORT)
+            .show()
+        return
+      }
+      var title = data!!.getStringExtra(AddEditNoteActivity.EXTRA_TITLE)
+      var description = data!!.getStringExtra(AddEditNoteActivity.EXTRA_DESCRIPTION)
+      var priority = data!!.getIntExtra(AddEditNoteActivity.EXTRA_PRIORITY, 1)
+
+      var note = Note(title, description, priority)
+      note.id = id
+      noteViewModel!!.update(note)
+      Toast.makeText(this, "Note Updated", Toast.LENGTH_SHORT)
           .show()
     } else {
       Toast.makeText(this, "Couldn't Save the Note", Toast.LENGTH_SHORT)

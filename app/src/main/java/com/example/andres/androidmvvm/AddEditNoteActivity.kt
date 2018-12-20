@@ -10,11 +10,12 @@ import android.widget.EditText
 import android.widget.NumberPicker
 import android.widget.Toast
 
-class AddNoteActivity : AppCompatActivity() {
+class AddEditNoteActivity : AppCompatActivity() {
   companion object {
-    public val EXTRA_TITLE: String = "com.example.andres.androidmvvm.EXTRA_TITLE"
-    public val EXTRA_DESCRIPTION: String = "com.example.andres.androidmvvm.DESCRIPTION"
-    public val EXTRA_PRIORITY: String = "com.example.andres.androidmvvm.PRIORITY"
+    val EXTRA_TITLE: String = "com.example.andres.androidmvvm.EXTRA_TITLE"
+    val EXTRA_ID: String = "com.example.andres.androidmvvm.EXTRA_ID"
+    val EXTRA_DESCRIPTION: String = "com.example.andres.androidmvvm.DESCRIPTION"
+    val EXTRA_PRIORITY: String = "com.example.andres.androidmvvm.PRIORITY"
   }
 
   private var mTitleEt: EditText? = null
@@ -33,7 +34,16 @@ class AddNoteActivity : AppCompatActivity() {
     mNumberPicker!!.maxValue = 10
 
     supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_close)
-    setTitle("Add Note")
+
+    val intent = getIntent()
+    if (intent.hasExtra(EXTRA_ID)) {
+      setTitle("Edit Note")
+      mDescriptionEt!!.setText(intent.getStringExtra(EXTRA_DESCRIPTION))
+      mTitleEt!!.setText(intent.getStringExtra(EXTRA_TITLE))
+      mNumberPicker!!.value = intent.getIntExtra(EXTRA_DESCRIPTION, 1)
+    } else {
+      setTitle("Add Note")
+    }
   }
 
   override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -70,6 +80,10 @@ class AddNoteActivity : AppCompatActivity() {
     data.putExtra(EXTRA_DESCRIPTION, description)
     data.putExtra(EXTRA_PRIORITY, priority)
 
+    var id = intent.getIntExtra(EXTRA_ID, -1)
+    if (id != -1) {
+      data.putExtra(EXTRA_ID, id)
+    }
     setResult(Activity.RESULT_OK, data)
     finish()
   }
